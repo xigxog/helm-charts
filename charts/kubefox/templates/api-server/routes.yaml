@@ -1,0 +1,33 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "kubefox.fullname" . }}-api-server
+  labels:
+    app.kubernetes.io/component: api-server
+    {{- include "kubefox.labels" . | nindent 4 }}
+spec:
+  headers:
+    customRequestHeaders:
+      Kf-Release-Target: platform:api-server
+      Kf-Release-System: kubefox
+      Kf-Release-Environment: kubefox
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "kubefox.fullname" . }}-api-server
+  labels:
+    app.kubernetes.io/component: api-server
+    {{- include "kubefox.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: PathPrefix(`/api/kubefox/`)
+      kind: Rule
+      services:
+        - name: kfp-broker
+          port: 8080
+      middlewares:
+        - name: {{ include "kubefox.fullname" . }}-api-server

@@ -1,0 +1,277 @@
+devMode: true
+
+### KubeFox Components
+
+apiServer:
+  image:
+    repository: ghcr.io/xigxog/kubefox/api-server
+    tag: v0.1.0-alpha
+    pullPolicy: Always
+
+broker:
+  image:
+    repository: ghcr.io/xigxog/kubefox/broker
+    tag: v0.1.0-alpha
+    pullPolicy: Always
+  service:
+    name: kfp-broker
+
+operator:
+  image:
+    repository: ghcr.io/xigxog/kubefox/operator
+    tag: v0.1.0-alpha
+    pullPolicy: Always
+
+runtimeServer:
+  image:
+    repository: ghcr.io/xigxog/kubefox/runtime-server
+    tag: v0.1.0-alpha
+    pullPolicy: Always
+  service:
+    name: kfp-runtime-server
+    port: 6060
+  tls:
+    secret:
+      name: kfp-tls-cert-runtime
+
+### 3rd Party Components
+
+metacontroller:
+  additionalVolumes:
+    - name: kfp-tls-cert-nats
+      secret:
+        defaultMode: 420
+        secretName: kfp-tls-cert-nats
+    - name: kfp-tls-cert-runtime
+      secret:
+        defaultMode: 420
+        secretName: kfp-tls-cert-runtime
+
+  additionalContainers:
+    - name: broker
+      image: ghcr.io/xigxog/kubefox/broker:v0.1.0-alpha
+      imagePullPolicy: Always
+      args:
+        - adapter
+        - http-server
+        - --system=kubefox
+        - --component=kubernetes-adapter
+        - --component-hash=0000000
+      envFrom:
+        - configMapRef:
+            name: kfp-env
+      volumeMounts:
+        - mountPath: /kubefox/nats/tls
+          name: kfp-tls-cert-nats
+          readOnly: true
+        - mountPath: /kubefox/runtime/tls
+          name: kfp-tls-cert-runtime
+          readOnly: true
+      resources: {}
+
+nats:
+  nats:
+    service:
+      name: kfp-nats
+
+    logging:
+      debug: false
+
+    client:
+      port: 4222
+      portName: client
+
+    jetstream:
+      enabled: true
+      memStorage:
+        enabled: true
+        size: 1Gi
+      fileStorage:
+        enabled: true
+        size: 8Gi
+
+    tls:
+      verify: true
+      allowNonTLS: false
+      secret:
+        name: kfp-tls-cert-nats
+      ca: ca.crt
+      cert: tls.crt
+      key: tls.key
+
+  cluster:
+    enabled: false
+
+  natsbox:
+    enabled: false
+
+traefik:
+  serviceAccount:
+    name: kfp-broker
+
+  service:
+    type: NodePort
+
+  ports:
+    web:
+      port: 8000
+      expose: true
+      exposedPort: 80
+      nodePort: 30080
+      protocol: TCP
+      redirectTo: websecure
+    websecure:
+      port: 8443
+      expose: true
+      exposedPort: 443
+      nodePort: 30443
+      protocol: TCP
+      tls:
+        enabled: true
+
+  deployment:
+    additionalVolumes:
+      - name: kfp-tls-cert-nats
+        secret:
+          defaultMode: 420
+          secretName: kfp-tls-cert-nats
+      - name: kfp-tls-cert-runtime
+        secret:
+          defaultMode: 420
+          secretName: kfp-tls-cert-runtime
+
+    additionalContainers:
+      - name: broker
+        image: ghcr.io/xigxog/kubefox/broker:v0.1.0-alpha
+        imagePullPolicy: Always
+        args:
+          - adapter
+          - http-server
+          - --system=kubefox
+          - --component=http-ingress-adapter
+          - --component-hash=0000000
+        envFrom:
+          - configMapRef:
+              name: kfp-env
+        volumeMounts:
+          - mountPath: /kubefox/nats/tls
+            name: kfp-tls-cert-nats
+            readOnly: true
+          - mountPath: /kubefox/runtime/tls
+            name: kfp-tls-cert-runtime
+            readOnly: true
+        resources: {}
+
+  ingressClass:
+    enabled: false
+    isDefaultClass: false
+
+  providers:
+    kubernetesCRD:
+      enabled: true
+      allowCrossNamespace: true
+      allowExternalNameServices: true
+      namespaces: []
+
+    kubernetesIngress:
+      enabled: false
+
+  ingressRoute:
+    dashboard:
+      enabled: false
+
+  # Disables sending telemetry to Traefik
+  globalArguments: []
+
+  logs:
+    general:
+      level: ERROR
+    access:
+      enabled: false
+
+vault:
+  global:
+    tlsDisable: false
+
+  injector:
+    enabled: false
+
+  plugins:
+    nats:
+      version: 0.1.2-alpha
+      hash: 0921086bb4208c68714cb5db8665722b76ed887aa4800e9022004178d14611b8
+      cmd: &nats_plugin_cmd nats-plugin-0.1.2-alpha
+      url: &nats_plugin_url https://github.com/kubefox/vault-plugin-nats/releases/download/0.1.2-alpha/nats-plugin-0.1.2-alpha
+
+  server:
+    enabled: true
+    updateStrategyType: RollingUpdate
+
+    service:
+      name: kfp-vault
+      port: 8200
+      targetPort: 8200
+
+    tls:
+      secret:
+        name: kfp-tls-cert-vault
+
+    ingress:
+      enabled: false
+
+    extraEnvironmentVars:
+      VAULT_ENABLE_FILE_PERMISSIONS_CHECK: "true"
+      VAULT_CACERT: /vault/tls/ca.crt
+      VAULT_TLSCERT: /vault/tls/tls.crt
+      VAULT_TLSKEY: /vault/tls/tls.key
+
+    logLevel: info # trace, debug, info, warn, error
+    logFormat: standard # standard, json
+
+    volumes:
+      - name: tls
+        secret:
+          defaultMode: 420
+          secretName: kfp-tls-cert-vault
+
+    volumeMounts:
+      - mountPath: /vault/tls
+        name: tls
+        readOnly: true
+
+    extraInitContainers:
+      - name: nats-plugin
+        image: alpine:3.17.2
+        env:
+          - name: URL
+            value: *nats_plugin_url
+          - name: CMD
+            value: *nats_plugin_cmd
+          - name: PLUGINS_DIR
+            value: /vault/data/plugins
+        command: [sh, -c]
+        args:
+          - if [ -f "${PLUGINS_DIR}/${CMD}" ]; then exit 0; fi &&
+            mkdir -p "${PLUGINS_DIR}" &&
+            wget "$URL" --tries 3 --output-document "${PLUGINS_DIR}/${CMD}" &&
+            chmod 700 "${PLUGINS_DIR}/${CMD}"
+        volumeMounts:
+          - name: data
+            mountPath: /vault/data
+
+    standalone:
+      enabled: true
+      config: |
+        ui = true
+        listener "tcp" {
+          tls_disable = 0
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_client_ca_file = "/vault/tls/ca.crt"
+          tls_cert_file = "/vault/tls/tls.crt"
+          tls_key_file  = "/vault/tls/tls.key"
+        }
+        storage "file" {
+          path = "/vault/data"
+        }
+        plugin_directory = "/vault/data/plugins"

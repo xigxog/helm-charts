@@ -1,0 +1,7 @@
+**/secrets/
+**/tmp/
+**/values/workstation/
+*.tgz
+_template.yaml
+Chart.lock
+helmfile.lock

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kubefox.fullname" . }}-operator
+  labels:
+    app.kubernetes.io/component: operator
+    {{- include "kubefox.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: operator
+      {{- include "kubefox.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: operator
+        {{- include "kubefox.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: kfp-operator
+      volumes:
+        - name: {{ .Values.vault.server.tls.secret.name }}
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.vault.server.tls.secret.name }}
+        - name: {{ .Values.nats.nats.tls.secret.name }}
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.nats.nats.tls.secret.name }}
+        - name: {{ .Values.runtimeServer.tls.secret.name }}
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.runtimeServer.tls.secret.name }}
+      containers:
+        - name: broker
+          image: {{ printf "%s:%s" .Values.broker.image.repository .Values.broker.image.tag }}
+          imagePullPolicy: {{ .Values.broker.image.pullPolicy }}
+          args:
+            - component
+            - --system=kubefox
+            - --component=operator
+            - --component-hash=0000000
+          envFrom:
+            - configMapRef:
+                name: kfp-env
+          volumeMounts:
+            - mountPath: /kubefox/nats/tls
+              name: {{ .Values.nats.nats.tls.secret.name }}
+              readOnly: true
+            - mountPath: /kubefox/runtime/tls
+              name: {{ .Values.runtimeServer.tls.secret.name }}
+              readOnly: true
+          resources: {}
+        - name: operator
+          image: {{ printf "%s:%s" .Values.operator.image.repository .Values.operator.image.tag }}
+          imagePullPolicy: {{ .Values.operator.image.pullPolicy }}
+          env:
+            - name: VAULT_CACERT
+              value: /kubefox/vault/tls/ca.crt
+            - name: VAULT_TLSCERT
+              value: /kubefox/vault/tls/tls.crt
+            - name: VAULT_TLSKEY
+              value: /kubefox/vault/tls/tls.key
+          envFrom:
+            - configMapRef:
+                name: kfp-env
+          volumeMounts:
+            - mountPath: /kubefox/vault/tls
+              name: {{ .Values.vault.server.tls.secret.name }}
+              readOnly: true
+            - mountPath: /kubefox/runtime/tls
+              name: {{ .Values.runtimeServer.tls.secret.name }}
+              readOnly: true
+          ports:
+            - name: grpc
+              containerPort: 7071
+              protocol: TCP
+          resources: {}

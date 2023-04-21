@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kfp-broker
+  labels:
+    app.kubernetes.io/component: broker
+    {{- include "kubefox.labels" . | nindent 4 }}

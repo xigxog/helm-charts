@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.runtimeServer.service.name }}
+  labels:
+    app.kubernetes.io/component: runtime-server
+    {{- include "kubefox.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: {{ .Values.runtimeServer.service.port }}
+      targetPort: {{ .Values.runtimeServer.service.port }}
+  selector:
+    app.kubernetes.io/component: runtime-server
+    {{- include "kubefox.selectorLabels" . | nindent 4 }}

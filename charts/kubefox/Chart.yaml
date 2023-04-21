@@ -1,0 +1,20 @@
+apiVersion: v2
+type: application
+version: 0.1.0
+appVersion: v0.1.0-alpha
+
+name: kubefox
+description: A Helm chart for the KubeFox Platform.
+sources:
+  - https://github.com/xigxog/kubefox
+
+dependencies:
+  - name: nats
+    repository: https://nats-io.github.io/k8s/helm/charts
+    version: 0.19.13
+  - name: traefik
+    repository: https://traefik.github.io/charts
+    version: 22.1.0
+  - name: vault
+    repository: https://helm.releases.hashicorp.com
+    version: 0.24.1
