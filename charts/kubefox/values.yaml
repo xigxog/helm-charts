@@ -1,32 +1,18 @@
 devMode: true
 
+image:
+  tag: # Defaults to Chart.AppVersion
+  repository: ghcr.io/xigxog/kubefox
+  pullPolicy: IfNotPresent
+
 ### KubeFox Components
 
-apiServer:
-  image:
-    repository: ghcr.io/xigxog/kubefox/api-server
-    tag: v0.1.0-alpha
-    pullPolicy: Always
-
 broker:
-  image:
-    repository: ghcr.io/xigxog/kubefox/broker
-    tag: v0.1.0-alpha
-    pullPolicy: Always
+  image: &broker_image ghcr.io/xigxog/kubefox/broker:v0.1.0-alpha
   service:
     name: kfp-broker
 
-operator:
-  image:
-    repository: ghcr.io/xigxog/kubefox/operator
-    tag: v0.1.0-alpha
-    pullPolicy: Always
-
 runtimeServer:
-  image:
-    repository: ghcr.io/xigxog/kubefox/runtime-server
-    tag: v0.1.0-alpha
-    pullPolicy: Always
   service:
     name: kfp-runtime-server
     port: 6060
@@ -49,8 +35,7 @@ metacontroller:
 
   additionalContainers:
     - name: broker
-      image: ghcr.io/xigxog/kubefox/broker:v0.1.0-alpha
-      imagePullPolicy: Always
+      image: *broker_image
       args:
         - adapter
         - http-server
@@ -142,8 +127,7 @@ traefik:
 
     additionalContainers:
       - name: broker
-        image: ghcr.io/xigxog/kubefox/broker:v0.1.0-alpha
-        imagePullPolicy: Always
+        image: *broker_image
         args:
           - adapter
           - http-server
@@ -198,10 +182,10 @@ vault:
 
   plugins:
     nats:
-      version: 0.1.2-alpha
-      hash: 0921086bb4208c68714cb5db8665722b76ed887aa4800e9022004178d14611b8
-      cmd: &nats_plugin_cmd nats-plugin-0.1.2-alpha
-      url: &nats_plugin_url https://github.com/kubefox/vault-plugin-nats/releases/download/0.1.2-alpha/nats-plugin-0.1.2-alpha
+      version: v0.1.0-alpha
+      hash: 52ac495a51045c872e31a5a838ca6981bf6fbee42564c5a44aa29f68b1b8da24
+      cmd: nats-plugin-v0.1.0-alpha
+      url: https://github.com/xigxog/vault-plugin-nats/releases/download/v0.1.0-alpha/nats-plugin-v0.1.0-alpha
 
   server:
     enabled: true
@@ -243,18 +227,17 @@ vault:
       - name: nats-plugin
         image: alpine:3.17.2
         env:
-          - name: URL
-            value: *nats_plugin_url
-          - name: CMD
-            value: *nats_plugin_cmd
           - name: PLUGINS_DIR
             value: /vault/data/plugins
+        envFrom:
+          - configMapRef:
+              name: kfp-env
         command: [sh, -c]
         args:
-          - if [ -f "${PLUGINS_DIR}/${CMD}" ]; then exit 0; fi &&
+          - if [ -f "${PLUGINS_DIR}/${KUBEFOX_NATS_PLUGIN_CMD}" ]; then exit 0; fi &&
             mkdir -p "${PLUGINS_DIR}" &&
-            wget "$URL" --tries 3 --output-document "${PLUGINS_DIR}/${CMD}" &&
-            chmod 700 "${PLUGINS_DIR}/${CMD}"
+            wget "${KUBEFOX_NATS_PLUGIN_URL}" --tries 3 --output-document "${PLUGINS_DIR}/${KUBEFOX_NATS_PLUGIN_CMD}" &&
+            chmod 700 "${PLUGINS_DIR}/${KUBEFOX_NATS_PLUGIN_CMD}"
         volumeMounts:
           - name: data
             mountPath: /vault/data

@@ -14,13 +14,14 @@ metadata:
   labels:
     {{- include "kubefox.labels" . | nindent 4 }}
 data:
-  KUBEFOX_BROKER_IMAGE: {{ printf "%s:%s" .Values.broker.image.repository .Values.broker.image.tag }}
+  KUBEFOX_BROKER_IMAGE: "{{ .Values.image.repository }}/broker:{{ .Values.image.tag | default .Chart.AppVersion }}"
   KUBEFOX_DEV: {{ .Values.devMode | quote }}
-  KUBEFOX_PLATFORM: {{ .Release.Name }}
-  KUBEFOX_NAMESPACE: {{ .Release.Namespace }}
-  KUBEFOX_NATS_ADDR: {{ printf "%s.%s.svc.cluster.local:%d" (.Values.nats.nats.service.name) (.Release.Namespace) (int .Values.nats.nats.client.port) }}
-  KUBEFOX_RUNTIME_SRV_ADDR: {{ printf "%s.%s.svc.cluster.local:%d" (.Values.runtimeServer.service.name) (.Release.Namespace) (int .Values.runtimeServer.service.port) }}
-  KUBEFOX_VAULT_URL: {{ printf "https://%s.%s.svc.cluster.local:%d" (.Values.vault.server.service.name) (.Release.Namespace) (int .Values.vault.server.service.port) }}
-  KUBEFOX_NATS_PLUGIN_CMD: {{ .Values.vault.plugins.nats.cmd }}
+  KUBEFOX_NAMESPACE: {{ .Release.Namespace | quote }}
+  KUBEFOX_NATS_ADDR: {{ printf "%s.%s.svc.cluster.local:%d" (.Values.nats.nats.service.name) (.Release.Namespace) (int .Values.nats.nats.client.port) | quote }}
+  KUBEFOX_NATS_PLUGIN_CMD: {{ .Values.vault.plugins.nats.cmd | quote }}
+  KUBEFOX_NATS_PLUGIN_HASH: {{ .Values.vault.plugins.nats.hash | quote }}
+  KUBEFOX_NATS_PLUGIN_URL: {{ .Values.vault.plugins.nats.url | quote }}
   KUBEFOX_NATS_PLUGIN_VERSION: {{ .Values.vault.plugins.nats.version | quote }}
-  KUBEFOX_NATS_PLUGIN_HASH: {{ .Values.vault.plugins.nats.hash }}
+  KUBEFOX_PLATFORM: {{ .Release.Name | quote }}
+  KUBEFOX_RUNTIME_SRV_ADDR: {{ printf "%s.%s.svc.cluster.local:%d" (.Values.runtimeServer.service.name) (.Release.Namespace) (int .Values.runtimeServer.service.port) | quote }}
+  KUBEFOX_VAULT_URL: {{ printf "https://%s.%s.svc.cluster.local:%d" (.Values.vault.server.service.name) (.Release.Namespace) (int .Values.vault.server.service.port) | quote }}

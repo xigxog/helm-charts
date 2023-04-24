@@ -32,8 +32,8 @@ spec:
             secretName: {{ .Values.runtimeServer.tls.secret.name }}
       containers:
         - name: broker
-          image: {{ printf "%s:%s" .Values.broker.image.repository .Values.broker.image.tag }}
-          imagePullPolicy: {{ .Values.broker.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}/broker:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - component
             - --system=kubefox
@@ -51,8 +51,8 @@ spec:
               readOnly: true
           resources: {}
         - name: operator
-          image: {{ printf "%s:%s" .Values.operator.image.repository .Values.operator.image.tag }}
-          imagePullPolicy: {{ .Values.operator.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}/operator:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: VAULT_CACERT
               value: /kubefox/vault/tls/ca.crt
