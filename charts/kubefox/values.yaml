@@ -8,7 +8,7 @@ image:
 ### KubeFox Components
 
 broker:
-  image: &broker_image ghcr.io/xigxog/kubefox/broker:v0.1.0-alpha
+  image: &broker_image ghcr.io/xigxog/kubefox/broker:v0.1.1-alpha
   service:
     name: kfp-broker
 
@@ -70,7 +70,7 @@ nats:
       enabled: true
       memStorage:
         enabled: true
-        size: 1Gi
+        size: 2Gi
       fileStorage:
         enabled: true
         size: 8Gi
