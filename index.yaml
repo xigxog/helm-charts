@@ -2,6 +2,28 @@ apiVersion: v1
 entries:
   kubefox:
   - apiVersion: v2
+    appVersion: v0.1.1-alpha
+    created: "2023-04-27T16:15:22.02919726Z"
+    dependencies:
+    - name: nats
+      repository: https://nats-io.github.io/k8s/helm/charts
+      version: 0.19.13
+    - name: traefik
+      repository: https://traefik.github.io/charts
+      version: 22.1.0
+    - name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.24.1
+    description: A Helm chart for the KubeFox Platform.
+    digest: 830602043f096c31c16d1e838b214931a5101a5ede5e809a9dbf92cba54bcae0
+    name: kubefox
+    sources:
+    - https://github.com/xigxog/kubefox
+    type: application
+    urls:
+    - https://github.com/xigxog/helm-charts/releases/download/kubefox-0.1.2/kubefox-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: v0.1.0-alpha
     created: "2023-04-24T14:58:54.706466949Z"
     dependencies:
@@ -45,4 +67,4 @@ entries:
     urls:
     - https://github.com/xigxog/helm-charts/releases/download/kubefox-0.1.0/kubefox-0.1.0.tgz
     version: 0.1.0
-generated: "2023-04-24T14:58:54.706481149Z"
+generated: "2023-04-27T16:15:22.029214261Z"
