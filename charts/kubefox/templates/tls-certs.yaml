@@ -26,14 +26,19 @@ data:
 
 {{- $ca := genCA "KubeFox CA" 3650 }}
 
+{{- $secName := .Values.telemetry.tls.secret.name }}
+{{- $svcName := "kfp-telemetry-agent" }}
+{{- $data := dict "secName" $secName "svcName" $svcName "ca" $ca "root" . }}
+{{- include "kubefox.tls-secret" $data }}
+
 {{- $secName := .Values.nats.nats.tls.secret.name }}
 {{- $svcName := .Values.nats.nats.service.name }}
 {{- $data := dict "secName" $secName "svcName" $svcName "ca" $ca "root" . }}
 {{- include "kubefox.tls-secret" $data }}
 
 
-{{- $secName := .Values.runtimeServer.tls.secret.name }}
-{{- $svcName := .Values.runtimeServer.service.name }}
+{{- $secName := .Values.runtime.server.tls.secret.name }}
+{{- $svcName := .Values.runtime.server.service.name }}
 {{- $data := dict "secName" $secName "svcName" $svcName "ca" $ca "root" . }}
 {{- include "kubefox.tls-secret" $data }}
 

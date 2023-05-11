@@ -1,24 +1,36 @@
 devMode: true
 
 image:
-  tag: # Defaults to Chart.AppVersion
+  # Defaults to Chart.AppVersion
+  # tag:
+
   repository: ghcr.io/xigxog/kubefox
-  pullPolicy: IfNotPresent
+  pullPolicy: Always # TODO IfNotPresent
 
 ### KubeFox Components
 
 broker:
-  image: &broker_image ghcr.io/xigxog/kubefox/broker:v0.1.1-alpha
+  healthPort: &health_port 1111
+  image: &broker_image ghcr.io/xigxog/kubefox/broker:v0.2.x # TODO v0.2.0-alpha
   service:
     name: kfp-broker
 
-runtimeServer:
-  service:
-    name: kfp-runtime-server
-    port: 6060
+runtime:
+  server:
+    service:
+      name: kfp-runtime-server
+      port: 6060
+    tls:
+      secret:
+        name: kfp-tls-cert-runtime
+
+telemetry:
+  enabled: false
+  agent:
+    port: 4318
   tls:
     secret:
-      name: kfp-tls-cert-runtime
+      name: kfp-tls-cert-telemetry
 
 ### 3rd Party Components
 
@@ -52,6 +64,13 @@ metacontroller:
         - mountPath: /kubefox/runtime/tls
           name: kfp-tls-cert-runtime
           readOnly: true
+      ports:
+        - name: health
+          containerPort: *health_port
+          protocol: TCP
+      livenessProbe:
+        httpGet:
+          port: health
       resources: {}
 
 nats:
@@ -144,6 +163,13 @@ traefik:
           - mountPath: /kubefox/runtime/tls
             name: kfp-tls-cert-runtime
             readOnly: true
+        ports:
+          - name: health
+            containerPort: *health_port
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            port: health
         resources: {}
 
   ingressClass:

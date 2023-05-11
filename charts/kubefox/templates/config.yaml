@@ -16,6 +16,7 @@ metadata:
 data:
   KUBEFOX_BROKER_IMAGE: "{{ .Values.image.repository }}/broker:{{ .Values.image.tag | default .Chart.AppVersion }}"
   KUBEFOX_DEV: {{ .Values.devMode | quote }}
+  KUBEFOX_HEALTH_SRV_ADDR: {{ printf "0.0.0.0:%d" (int .Values.broker.healthPort) | quote }}
   KUBEFOX_NAMESPACE: {{ .Release.Namespace | quote }}
   KUBEFOX_NATS_ADDR: {{ printf "%s.%s.svc.cluster.local:%d" (.Values.nats.nats.service.name) (.Release.Namespace) (int .Values.nats.nats.client.port) | quote }}
   KUBEFOX_NATS_PLUGIN_CMD: {{ .Values.vault.plugins.nats.cmd | quote }}
@@ -23,5 +24,10 @@ data:
   KUBEFOX_NATS_PLUGIN_URL: {{ .Values.vault.plugins.nats.url | quote }}
   KUBEFOX_NATS_PLUGIN_VERSION: {{ .Values.vault.plugins.nats.version | quote }}
   KUBEFOX_PLATFORM: {{ .Release.Name | quote }}
-  KUBEFOX_RUNTIME_SRV_ADDR: {{ printf "%s.%s.svc.cluster.local:%d" (.Values.runtimeServer.service.name) (.Release.Namespace) (int .Values.runtimeServer.service.port) | quote }}
+  KUBEFOX_RUNTIME_SRV_ADDR: {{ printf "%s.%s.svc.cluster.local:%d" (.Values.runtime.server.service.name) (.Release.Namespace) (int .Values.runtime.server.service.port) | quote }}
+  {{- if .Values.telemetry.enabled }}
+  KUBEFOX_TELEMETRY_ADDR: {{ printf "%s:%d" (.Values.telemetry.service.name) (int .Values.telemetry.service.port) | quote }}
+  {{- else }}
+  KUBEFOX_TELEMETRY_ADDR: "false"
+  {{- end }}
   KUBEFOX_VAULT_URL: {{ printf "https://%s.%s.svc.cluster.local:%d" (.Values.vault.server.service.name) (.Release.Namespace) (int .Values.vault.server.service.port) | quote }}

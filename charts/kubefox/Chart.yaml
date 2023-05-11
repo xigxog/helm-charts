@@ -3,7 +3,7 @@ type: application
 version: 0.1.2
 
 # Be sure to update "broker.version" in values.yaml
-appVersion: v0.1.1-alpha
+appVersion: v0.2.x # TODO v0.2.0-alpha
 
 name: kubefox
 description: A Helm chart for the KubeFox Platform.
@@ -11,6 +11,7 @@ sources:
   - https://github.com/xigxog/kubefox
 
 dependencies:
+  - name: metacontroller
   - name: nats
     repository: https://nats-io.github.io/k8s/helm/charts
     version: 0.19.13

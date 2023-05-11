@@ -26,10 +26,10 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ .Values.nats.nats.tls.secret.name }}
-        - name: {{ .Values.runtimeServer.tls.secret.name }}
+        - name: {{ .Values.runtime.server.tls.secret.name }}
           secret:
             defaultMode: 420
-            secretName: {{ .Values.runtimeServer.tls.secret.name }}
+            secretName: {{ .Values.runtime.server.tls.secret.name }}
       containers:
         - name: broker
           image: "{{ .Values.image.repository }}/broker:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -47,8 +47,15 @@ spec:
               name: {{ .Values.nats.nats.tls.secret.name }}
               readOnly: true
             - mountPath: /kubefox/runtime/tls
-              name: {{ .Values.runtimeServer.tls.secret.name }}
+              name: {{ .Values.runtime.server.tls.secret.name }}
               readOnly: true
+          ports:
+            - name: health
+              containerPort: {{ .Values.broker.healthPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: health
           resources: {}
         - name: operator
           image: "{{ .Values.image.repository }}/operator:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -68,7 +75,7 @@ spec:
               name: {{ .Values.vault.server.tls.secret.name }}
               readOnly: true
             - mountPath: /kubefox/runtime/tls
-              name: {{ .Values.runtimeServer.tls.secret.name }}
+              name: {{ .Values.runtime.server.tls.secret.name }}
               readOnly: true
           ports:
             - name: grpc
