@@ -1,6 +1,6 @@
 **/secrets/
 **/tmp/
-**/values/workstation/
+workstation/
 *.tgz
 _template.yaml
 Chart.lock

@@ -39,9 +39,18 @@ spec:
             - --system=kubefox
             - --component=api-server
             - --component-hash=0000000
+            {{- if .Values.telemetry.enabled }}
+            - --telemetry-agent-addr=$(TELEMETRY_AGENT_HOST):{{ .Values.telemetry.agent.port }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: kfp-env
+          env:
+            - name: TELEMETRY_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
           volumeMounts:
             - mountPath: /kubefox/nats/tls
               name: {{ .Values.nats.nats.tls.secret.name }}

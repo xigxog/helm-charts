@@ -1,3 +1,7 @@
+## TODO ##
+# use node ip for telemetry agent
+# fix port for components, currently lists 7070
+
 devMode: true
 
 image:
@@ -5,7 +9,7 @@ image:
   # tag:
 
   repository: ghcr.io/xigxog/kubefox
-  pullPolicy: Always # TODO IfNotPresent
+  pullPolicy: &pull_policy Always # TODO IfNotPresent
 
 ### KubeFox Components
 
@@ -48,6 +52,7 @@ metacontroller:
   additionalContainers:
     - name: broker
       image: *broker_image
+      imagePullPolicy: *pull_policy
       args:
         - adapter
         - http-server
@@ -147,6 +152,7 @@ traefik:
     additionalContainers:
       - name: broker
         image: *broker_image
+        imagePullPolicy: *pull_policy
         args:
           - adapter
           - http-server

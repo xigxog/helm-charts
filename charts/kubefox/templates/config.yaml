@@ -25,9 +25,7 @@ data:
   KUBEFOX_NATS_PLUGIN_VERSION: {{ .Values.vault.plugins.nats.version | quote }}
   KUBEFOX_PLATFORM: {{ .Release.Name | quote }}
   KUBEFOX_RUNTIME_SRV_ADDR: {{ printf "%s.%s.svc.cluster.local:%d" (.Values.runtime.server.service.name) (.Release.Namespace) (int .Values.runtime.server.service.port) | quote }}
-  {{- if .Values.telemetry.enabled }}
-  KUBEFOX_TELEMETRY_ADDR: {{ printf "%s:%d" (.Values.telemetry.service.name) (int .Values.telemetry.service.port) | quote }}
-  {{- else }}
-  KUBEFOX_TELEMETRY_ADDR: "false"
+  {{- if not .Values.telemetry.enabled }}
+  KUBEFOX_TELEMETRY_AGENT_ADDR: "false"
   {{- end }}
   KUBEFOX_VAULT_URL: {{ printf "https://%s.%s.svc.cluster.local:%d" (.Values.vault.server.service.name) (.Release.Namespace) (int .Values.vault.server.service.port) | quote }}

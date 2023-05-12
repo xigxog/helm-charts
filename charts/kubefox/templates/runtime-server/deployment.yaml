@@ -40,9 +40,18 @@ spec:
             - --component=runtime-server
             - --component-hash=0000000
             - --runtime-srv-addr=0.0.0.0:{{ .Values.runtime.server.service.port }}
+            {{- if .Values.telemetry.enabled }}
+            - --telemetry-agent-addr=$(TELEMETRY_AGENT_HOST):{{ .Values.telemetry.agent.port }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: kfp-env
+          env:
+            - name: TELEMETRY_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
           volumeMounts:
             - mountPath: /kubefox/nats/tls
               name: {{ .Values.nats.nats.tls.secret.name }}
@@ -80,6 +89,6 @@ spec:
               readOnly: true
           ports:
             - name: grpc
-              containerPort: 7071
+              containerPort: {{ .Values.runtime.server.service.port }}
               protocol: TCP
           resources: {}
