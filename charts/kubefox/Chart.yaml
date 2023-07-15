@@ -1,23 +1,13 @@
 apiVersion: v2
 type: application
-version: 0.1.2
-
-# Be sure to update "broker.version" in values.yaml
-appVersion: v0.2.x # TODO v0.2.0-alpha
-
 name: kubefox
-description: A Helm chart for the KubeFox Platform.
+version: 0.2.0
+appVersion: main
+description: A Helm chart for the KubeFox Operator.
+maintainers:
+  - name: John Long (xadhatter)
+    email: support@xigxog.io
+  - name: Bill Schmidt (BoLB23)
+    email: support@xigxog.io
 sources:
   - https://github.com/xigxog/kubefox
-
-dependencies:
-  - name: metacontroller
-  - name: nats
-    repository: https://nats-io.github.io/k8s/helm/charts
-    version: 0.19.13
-  - name: traefik
-    repository: https://traefik.github.io/charts
-    version: 22.1.0
-  - name: vault
-    repository: https://helm.releases.hashicorp.com
-    version: 0.24.1

@@ -6,9 +6,9 @@ Expand the name of the chart.
 {{- end }}
 
 {{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
+Create a default fully qualified app name. We truncate at 63 chars because some 
+Kubernetes name fields are limited to this (by the DNS naming spec). If release 
+name contains chart name it will be used as a full name.
 */}}
 {{- define "kubefox.fullname" -}}
 {{- if .Values.fullnameOverride }}
@@ -31,32 +31,30 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
-Common labels
+Common labels.
 */}}
 {{- define "kubefox.labels" -}}
-helm.sh/chart: {{ include "kubefox.chart" . }}
 {{ include "kubefox.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
+app.kubernetes.io/version: {{ .Values.image.tag | default .Chart.AppVersion }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+helm.sh/chart: {{ include "kubefox.chart" . }}
+{{- with  .Values.extraLabels }}
+{{ toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*
-Selector labels
+Selector labels.
 */}}
 {{- define "kubefox.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "kubefox.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: operator
 {{- end }}
 
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "kubefox.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "kubefox.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
+{{- define "kubefox.metadata" -}}
+metadata:
+  name: {{ include "kubefox.fullname" . }}-operator
+  labels:
+    {{- include "kubefox.labels" . | nindent 4 }}
 {{- end }}

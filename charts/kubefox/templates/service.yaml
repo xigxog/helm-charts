@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+{{ include "kubefox.metadata" . }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: 7070
+      targetPort: grpc
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: https
+  selector:
+    {{- include "kubefox.selectorLabels" . | nindent 4 }}

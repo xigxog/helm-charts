@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+{{ include "kubefox.metadata" . }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "kubefox.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "kubefox.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "kubefox.fullname" . }}-operator
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      {{- with .Values.extraInitContainers }}
+      initContainers:
+        {{- tpl (toYaml . | nindent 8) $ }}
+      {{- end }}
+      containers:
+        - name: broker
+          image: {{ printf "%s/broker:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - operator
+            - --dev
+            - --platform={{ include "kubefox.fullname" . }}
+            - --platform-namespace={{ .Release.Namespace }}
+            - --operator-addr=0.0.0.0:7070
+            - --http-addr=0.0.0.0:8443
+            - --health-addr=0.0.0.0:1111
+            - --telemetry-agent-addr=$(HOST_IP):4318
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+          ports:
+            - name: grpc
+              protocol: TCP
+              containerPort: 7070
+            - name: https
+              protocol: TCP
+              containerPort: 8443
+            - name: health
+              protocol: TCP
+              containerPort: 1111
+          resources:
+            {{- toYaml .Values.broker.resources | nindent 12 }}
+          volumeMounts:
+            - name: kubefox
+              mountPath: /kubefox
+        - name: operator
+          image: {{ printf "%s/operator:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - -dev
+            - -platform={{ include "kubefox.fullname" . }}
+            - -platform-namespace={{ .Release.Namespace }}
+            - -cr={{ .Values.image.repository }}
+          resources:
+            {{- toYaml .Values.operator.resources | nindent 12 }}
+          volumeMounts:
+            - name: kubefox
+              mountPath: /kubefox
+        {{- with .Values.extraContainers }}
+          {{- tpl (toYaml . | nindent 8) $ }}
+        {{- end }}
+      volumes:
+        - name: kubefox
+          emptyDir: {}
+      {{- with .Values.extraVolumes }}
+        {{- tpl (toYaml . | nindent 8) $ }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets -}}
+      imagePullSecrets:
+      {{- range . -}}
+      {{- if typeIs "string" . }}
+        - name: {{ . }}
+      {{- else if index . "name" }}
+        - name: {{ .name }}
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- tpl (toYaml . | nindent 8) $ }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- tpl (toYaml . | nindent 8) $ }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- tpl (toYaml . | nindent 8) $ }}
+      {{- end }}

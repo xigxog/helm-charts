@@ -1,292 +1,53 @@
-## TODO ##
-# use node ip for telemetry agent
-# fix port for components, currently lists 7070
-
-devMode: true
+nameOverride: ""
+fullnameOverride: ""
 
 image:
-  # Defaults to Chart.AppVersion
-  # tag:
-
   repository: ghcr.io/xigxog/kubefox
-  pullPolicy: &pull_policy Always # TODO IfNotPresent
-
-### KubeFox Components
+  tag: main
+  pullPolicy: IfNotPresent
 
 broker:
-  healthPort: &health_port 1111
-  image: &broker_image ghcr.io/xigxog/kubefox/broker:v0.2.x # TODO v0.2.0-alpha
-  service:
-    name: kfp-broker
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 32Mi
 
-runtime:
-  server:
-    service:
-      name: kfp-runtime-server
-      port: 6060
-    tls:
-      secret:
-        name: kfp-tls-cert-runtime
+  # TODO
+  # livenessProbe:
+  #   failureThreshold: 2
+  #   initialDelaySeconds: 5
+  #   periodSeconds: 2
+  #   successThreshold: 1
+  #   timeoutSeconds: 5
 
-telemetry:
-  enabled: false
-  agent:
-    port: 4318
-  tls:
-    secret:
-      name: kfp-tls-cert-telemetry
+  # TODO
+  # readinessProbe:
+  #   failureThreshold: 2
+  #   initialDelaySeconds: 5
+  #   periodSeconds: 2
+  #   successThreshold: 1
+  #   timeoutSeconds: 5
 
-### 3rd Party Components
+operator:
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 32Mi
 
-metacontroller:
-  additionalVolumes:
-    - name: kfp-tls-cert-nats
-      secret:
-        defaultMode: 420
-        secretName: kfp-tls-cert-nats
-    - name: kfp-tls-cert-runtime
-      secret:
-        defaultMode: 420
-        secretName: kfp-tls-cert-runtime
+priorityClassName: ""
+imagePullSecrets: []
+nodeSelector: {}
+tolerations: []
+affinity: {}
 
-  additionalContainers:
-    - name: broker
-      image: *broker_image
-      imagePullPolicy: *pull_policy
-      args:
-        - adapter
-        - http-server
-        - --system=kubefox
-        - --component=kubernetes-adapter
-        - --component-hash=0000000
-      envFrom:
-        - configMapRef:
-            name: kfp-env
-      volumeMounts:
-        - mountPath: /kubefox/nats/tls
-          name: kfp-tls-cert-nats
-          readOnly: true
-        - mountPath: /kubefox/runtime/tls
-          name: kfp-tls-cert-runtime
-          readOnly: true
-      ports:
-        - name: health
-          containerPort: *health_port
-          protocol: TCP
-      livenessProbe:
-        httpGet:
-          port: health
-      resources: {}
-
-nats:
-  nats:
-    service:
-      name: kfp-nats
-
-    logging:
-      debug: false
-
-    client:
-      port: 4222
-      portName: client
-
-    jetstream:
-      enabled: true
-      memStorage:
-        enabled: true
-        size: 2Gi
-      fileStorage:
-        enabled: true
-        size: 8Gi
-
-    tls:
-      verify: true
-      allowNonTLS: false
-      secret:
-        name: kfp-tls-cert-nats
-      ca: ca.crt
-      cert: tls.crt
-      key: tls.key
-
-  cluster:
-    enabled: false
-
-  natsbox:
-    enabled: false
-
-traefik:
-  serviceAccount:
-    name: kfp-broker
-
-  service:
-    type: NodePort
-
-  ports:
-    web:
-      port: 8000
-      expose: true
-      exposedPort: 80
-      nodePort: 30080
-      protocol: TCP
-      redirectTo: websecure
-    websecure:
-      port: 8443
-      expose: true
-      exposedPort: 443
-      nodePort: 30443
-      protocol: TCP
-      tls:
-        enabled: true
-
-  deployment:
-    additionalVolumes:
-      - name: kfp-tls-cert-nats
-        secret:
-          defaultMode: 420
-          secretName: kfp-tls-cert-nats
-      - name: kfp-tls-cert-runtime
-        secret:
-          defaultMode: 420
-          secretName: kfp-tls-cert-runtime
-
-    additionalContainers:
-      - name: broker
-        image: *broker_image
-        imagePullPolicy: *pull_policy
-        args:
-          - adapter
-          - http-server
-          - --system=kubefox
-          - --component=http-ingress-adapter
-          - --component-hash=0000000
-        envFrom:
-          - configMapRef:
-              name: kfp-env
-        volumeMounts:
-          - mountPath: /kubefox/nats/tls
-            name: kfp-tls-cert-nats
-            readOnly: true
-          - mountPath: /kubefox/runtime/tls
-            name: kfp-tls-cert-runtime
-            readOnly: true
-        ports:
-          - name: health
-            containerPort: *health_port
-            protocol: TCP
-        livenessProbe:
-          httpGet:
-            port: health
-        resources: {}
-
-  ingressClass:
-    enabled: false
-    isDefaultClass: false
-
-  providers:
-    kubernetesCRD:
-      enabled: true
-      allowCrossNamespace: true
-      allowExternalNameServices: true
-      namespaces: []
-
-    kubernetesIngress:
-      enabled: false
-
-  ingressRoute:
-    dashboard:
-      enabled: false
-
-  # Disables sending telemetry to Traefik
-  globalArguments: []
-
-  logs:
-    general:
-      level: ERROR
-    access:
-      enabled: false
-
-vault:
-  global:
-    tlsDisable: false
-
-  injector:
-    enabled: false
-
-  plugins:
-    nats:
-      version: v0.1.0-alpha
-      hash: 52ac495a51045c872e31a5a838ca6981bf6fbee42564c5a44aa29f68b1b8da24
-      cmd: nats-plugin-v0.1.0-alpha
-      url: https://github.com/xigxog/vault-plugin-nats/releases/download/v0.1.0-alpha/nats-plugin-v0.1.0-alpha
-
-  server:
-    enabled: true
-    updateStrategyType: RollingUpdate
-
-    service:
-      name: kfp-vault
-      port: 8200
-      targetPort: 8200
-
-    tls:
-      secret:
-        name: kfp-tls-cert-vault
-
-    ingress:
-      enabled: false
-
-    extraEnvironmentVars:
-      VAULT_ENABLE_FILE_PERMISSIONS_CHECK: "true"
-      VAULT_CACERT: /vault/tls/ca.crt
-      VAULT_TLSCERT: /vault/tls/tls.crt
-      VAULT_TLSKEY: /vault/tls/tls.key
-
-    logLevel: info # trace, debug, info, warn, error
-    logFormat: standard # standard, json
-
-    volumes:
-      - name: tls
-        secret:
-          defaultMode: 420
-          secretName: kfp-tls-cert-vault
-
-    volumeMounts:
-      - mountPath: /vault/tls
-        name: tls
-        readOnly: true
-
-    extraInitContainers:
-      - name: nats-plugin
-        image: alpine:3.17.2
-        env:
-          - name: PLUGINS_DIR
-            value: /vault/data/plugins
-        envFrom:
-          - configMapRef:
-              name: kfp-env
-        command: [sh, -c]
-        args:
-          - if [ -f "${PLUGINS_DIR}/${KUBEFOX_NATS_PLUGIN_CMD}" ]; then exit 0; fi &&
-            mkdir -p "${PLUGINS_DIR}" &&
-            wget "${KUBEFOX_NATS_PLUGIN_URL}" --tries 3 --output-document "${PLUGINS_DIR}/${KUBEFOX_NATS_PLUGIN_CMD}" &&
-            chmod 700 "${PLUGINS_DIR}/${KUBEFOX_NATS_PLUGIN_CMD}"
-        volumeMounts:
-          - name: data
-            mountPath: /vault/data
-
-    standalone:
-      enabled: true
-      config: |
-        ui = true
-        listener "tcp" {
-          tls_disable = 0
-          address = "[::]:8200"
-          cluster_address = "[::]:8201"
-          tls_client_ca_file = "/vault/tls/ca.crt"
-          tls_cert_file = "/vault/tls/tls.crt"
-          tls_key_file  = "/vault/tls/tls.key"
-        }
-        storage "file" {
-          path = "/vault/data"
-        }
-        plugin_directory = "/vault/data/plugins"
+extraLabels: {}
+extraAnnotations: {}
+extraInitContainers: []
+extraContainers: []
+extraVolumes: []
