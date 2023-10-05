@@ -1,44 +1,36 @@
 nameOverride: ""
 fullnameOverride: ""
 
+log:
+  format: json # one of ["json", "console"]
+  level: info #one of ["debug", "info", "warn", "error"]
+
 image:
-  repository: ghcr.io/xigxog/kubefox
+  name: ghcr.io/xigxog/kubefox/operator
   tag: main
   pullPolicy: IfNotPresent
 
-broker:
-  resources:
-    limits:
-      cpu: 2000m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 32Mi
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
 
-  # TODO
-  # livenessProbe:
-  #   failureThreshold: 2
-  #   initialDelaySeconds: 5
-  #   periodSeconds: 2
-  #   successThreshold: 1
-  #   timeoutSeconds: 5
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: health
+  initialDelaySeconds: 15
+  periodSeconds: 20
 
-  # TODO
-  # readinessProbe:
-  #   failureThreshold: 2
-  #   initialDelaySeconds: 5
-  #   periodSeconds: 2
-  #   successThreshold: 1
-  #   timeoutSeconds: 5
-
-operator:
-  resources:
-    limits:
-      cpu: 2000m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 32Mi
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: health
+  initialDelaySeconds: 5
+  periodSeconds: 10
 
 priorityClassName: ""
 imagePullSecrets: []

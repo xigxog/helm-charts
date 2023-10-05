@@ -1,6 +1,6 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
-{{ include "kubefox.metadata" . }}
+{{ include "kubefox.operatorMetadata" . }}
 rules: # TODO refine access
   - apiGroups:
       - "*"

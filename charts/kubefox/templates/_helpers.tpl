@@ -52,9 +52,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: operator
 {{- end }}
 
-{{- define "kubefox.metadata" -}}
+{{- define "kubefox.operatorName" -}}
+{{ include "kubefox.fullname" . }}-operator
+{{- end }}
+
+{{- define "kubefox.operatorMetadata" -}}
 metadata:
-  name: {{ include "kubefox.fullname" . }}-operator
+  name: {{ include "kubefox.operatorName" . }}
   labels:
     {{- include "kubefox.labels" . | nindent 4 }}
+  {{- with  .Values.extraAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4}}
+  {{- end }}
 {{- end }}
