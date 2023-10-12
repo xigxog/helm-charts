@@ -12,6 +12,10 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       serviceAccountName: {{ include "kubefox.operatorName" . }}
       {{- with .Values.priorityClassName }}
       priorityClassName: {{ . }}
