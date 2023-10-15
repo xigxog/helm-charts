@@ -22,15 +22,15 @@ livenessProbe:
   httpGet:
     path: /healthz
     port: health
-  initialDelaySeconds: 15
-  periodSeconds: 20
+  initialDelaySeconds: 5
+  periodSeconds: 15
 
 readinessProbe:
   httpGet:
     path: /readyz
     port: health
   initialDelaySeconds: 5
-  periodSeconds: 10
+  periodSeconds: 15
 
 priorityClassName: ""
 imagePullSecrets: []
