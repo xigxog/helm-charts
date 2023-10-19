@@ -3,7 +3,7 @@ fullnameOverride: ""
 
 log:
   format: json # one of ["json", "console"]
-  level: info #one of ["debug", "info", "warn", "error"]
+  level: info # one of ["debug", "info", "warn", "error"]
 
 image:
   name: ghcr.io/xigxog/kubefox/operator
