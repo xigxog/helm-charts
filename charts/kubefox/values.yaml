@@ -7,16 +7,17 @@ log:
 
 image:
   name: ghcr.io/xigxog/kubefox/operator
-  tag: main
+  # Defaults to Chart's appVersion
+  #tag: main
   pullPolicy: IfNotPresent
 
 resources:
+  requests:
+    cpu: "0"
+    memory: 64Mi
   limits:
     cpu: 500m
     memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 64Mi
 
 livenessProbe:
   httpGet:
