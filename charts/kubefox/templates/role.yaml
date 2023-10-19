@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+{{ include "kubefox.operatorMetadata" . }}
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    resourceNames:
+      - a2e4163f.kubefox.xigxog.io
+    verbs:
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
