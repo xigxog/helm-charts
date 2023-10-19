@@ -1,7 +1,7 @@
 apiVersion: v2
 type: application
 name: kubefox
-version: 0.2.2
+version: 1.0.0
 appVersion: v0.2.2-alpha
 description: A Helm chart for the KubeFox Operator.
 maintainers:
