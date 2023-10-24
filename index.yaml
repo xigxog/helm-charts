@@ -2,6 +2,23 @@ apiVersion: v1
 entries:
   kubefox:
   - apiVersion: v2
+    appVersion: v0.2.4-alpha
+    created: "2023-10-24T20:43:00.980021592Z"
+    description: A Helm chart for the KubeFox Operator.
+    digest: 2eb9dba02a0cdaf8a685236357270469c80337e2065c4644d7b1bfa6868256d1
+    maintainers:
+    - email: support@xigxog.io
+      name: John Long (xadhatter)
+    - email: support@xigxog.io
+      name: Bill Schmidt (BoLB23)
+    name: kubefox
+    sources:
+    - https://github.com/xigxog/kubefox
+    type: application
+    urls:
+    - https://github.com/xigxog/helm-charts/releases/download/kubefox-1.0.2/kubefox-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
     appVersion: v0.2.3-alpha
     created: "2023-10-24T04:11:22.660774586Z"
     description: A Helm chart for the KubeFox Operator.
@@ -135,4 +152,4 @@ entries:
     urls:
     - https://github.com/xigxog/helm-charts/releases/download/kubefox-0.1.0/kubefox-0.1.0.tgz
     version: 0.1.0
-generated: "2023-10-24T04:11:22.660805187Z"
+generated: "2023-10-24T20:43:00.980053594Z"
