@@ -1,8 +1,8 @@
 apiVersion: v2
 type: application
 name: kubefox
-version: 1.0.2
-appVersion: v0.2.4-alpha
+version: 1.0.3
+appVersion: v0.2.5-alpha
 description: A Helm chart for the KubeFox Operator.
 maintainers:
   - name: John Long (xadhatter)
