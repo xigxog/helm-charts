@@ -3,6 +3,13 @@ kind: Role
 {{ include "kubefox.operatorMetadata" . }}
 rules:
   - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+
+  - apiGroups:
       - coordination.k8s.io
     resources:
       - leases

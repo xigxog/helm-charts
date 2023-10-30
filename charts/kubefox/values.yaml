@@ -44,3 +44,63 @@ extraAnnotations: {}
 extraInitContainers: []
 extraContainers: []
 extraVolumes: []
+
+vault:
+  # To use your own instance of Vault set 'enabled' to 'false' and specify its
+  # URL including the protocol and port using 'externalURL'.
+  enabled: true
+  #externalURL: https://my-vault:8200
+
+  server:
+    dataStorage:
+      size: 1Gi
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 128Mi
+        cpu: 500m
+
+    # Here be dragons. Making changes to the values below will more than likely
+    # cause problems running the default instance of Vault. Only make changes if
+    # you understand the consequences.
+
+    ## dragons START
+    fullnameOverride: kubefox-vault
+    image:
+      repository: ghcr.io/xigxog/vault
+      tag: "1.14.5"
+    standalone:
+      enabled: true
+    ha:
+      enabled: false
+    service:
+      port: 8200
+    statefulSet:
+      securityContext:
+        pod:
+          runAsNonRoot: true
+          runAsUser: 100
+          runAsGroup: 1000
+          fsGroup: 1000
+          fsGroupChangePolicy: OnRootMismatch
+        container:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+    extraEnvironmentVars:
+      VAULT_LOG_FORMAT: json
+    extraSecretEnvironmentVars:
+      - envName: KUBEFOX_INSTANCE
+        secretName: kubefox-vault-env
+        secretKey: KUBEFOX_INSTANCE
+      - envName: KUBEFOX_NAMESPACE
+        secretName: kubefox-vault-env
+        secretKey: KUBEFOX_NAMESPACE
+  injector:
+    enabled: false
+  global:
+    tlsDisable: false
+  ## dragons END

@@ -1,0 +1,39 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.vault.fullnameOverride }}
+  labels:
+    {{- include "kubefox.labels" . | nindent 4 }}
+  {{- with  .Values.extraAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4}}
+  {{- end }}
+rules: 
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    resourceNames:
+      - {{ include "kubefox.fullname" . }}-unseal-key
+    verbs:
+      - get
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    resourceNames:
+      - {{ include "kubefox.fullname" . }}-root-ca
+    verbs:
+      - get
+      - update
+      - patch
+      - delete
