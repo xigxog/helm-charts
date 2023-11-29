@@ -2,8 +2,12 @@ nameOverride: ""
 fullnameOverride: ""
 
 log:
-  format: json # one of ["json", "console"]
-  level: info # one of ["debug", "info", "warn", "error"]
+  # Configure the logging verbosity for the KubeFox operator.
+  # Supported log levels include:debug, info, warn, error
+  level: info
+  # Configure the logging format for the KubeFox operator.
+  # Supported log formats include: console, json
+  format: json
 
 image:
   name: ghcr.io/xigxog/kubefox/operator
@@ -45,9 +49,16 @@ extraInitContainers: []
 extraContainers: []
 extraVolumes: []
 
+bootstrap:
+  image:
+  name: ghcr.io/xigxog/kubefox/bootstrap
+  # Defaults to Chart's appVersion
+  #tag: main
+  pullPolicy: IfNotPresent
+
 vault:
   # To use your own instance of Vault set 'enabled' to 'false' and specify its
-  # URL including the protocol and port using 'externalURL'.
+  # URL including protocol and port using 'externalURL'.
   enabled: true
   #externalURL: https://my-vault:8200
 
@@ -61,12 +72,20 @@ vault:
       limits:
         memory: 128Mi
         cpu: 500m
+    # Configure the logging verbosity for the Vault server.
+    # Supported log levels include: trace, debug, info, warn, error
+    logLevel: info
+    # Configure the logging format for the Vault server.
+    # Supported log formats include: standard, json
+    logFormat: json
 
     # Here be dragons. Making changes to the values below will more than likely
     # cause problems running the default instance of Vault. Only make changes if
     # you understand the consequences.
 
-    ## dragons START
+    ########################################
+    # START dragons                        #
+    ########################################
     image:
       repository: ghcr.io/xigxog/vault
       tag: "1.14.5"
@@ -89,8 +108,6 @@ vault:
           capabilities:
             drop:
               - ALL
-    extraEnvironmentVars:
-      VAULT_LOG_FORMAT: json
     extraSecretEnvironmentVars:
       - envName: KUBEFOX_INSTANCE
         secretName: kubefox-vault-env
@@ -103,4 +120,6 @@ vault:
   global:
     tlsDisable: false
   fullnameOverride: kubefox-vault
-  ## dragons END
+  ########################################
+  # END dragons                          #
+  ########################################

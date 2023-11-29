@@ -31,11 +31,14 @@ spec:
           args:
             - -instance={{ include "kubefox.fullname" . }}
             - -namespace={{ .Release.Namespace }}
-            - -vault-url={{ .Values.vault.externalURL | default (printf "https://%s:%s" .Values.vault.fullnameOverride (.Values.vault.server.service.port | toString)) }}
+            - -vault-url={{ .Values.vault.externalURL | default (printf "https://%s.%s:%s" .Values.vault.fullnameOverride .Release.Namespace (.Values.vault.server.service.port | toString)) }}
             - -health-addr=0.0.0.0:1111
             - -log-format={{ .Values.log.format | default "json" }}
             - -log-level={{ .Values.log.level | default "info" }}
           ports:
+            - name: webhook
+              containerPort: 9443
+              protocol: TCP
             - name: health
               containerPort: 1111
               protocol: TCP
@@ -44,6 +47,9 @@ spec:
             capabilities:
               drop:
                 - "ALL"
+          volumeMounts:
+            - name: kubefox
+              mountPath: /tmp/kubefox
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -59,8 +65,10 @@ spec:
         {{- with .Values.extraContainers }}
           {{- tpl (toYaml . | nindent 8) $ }}
         {{- end }}
-      {{- with .Values.extraVolumes }}
       volumes:
+        - name: kubefox
+          emptyDir: {}
+      {{- with .Values.extraVolumes }}
         {{- tpl (toYaml . | nindent 8) $ }}
       {{- end }}
       {{- with .Values.imagePullSecrets -}}
