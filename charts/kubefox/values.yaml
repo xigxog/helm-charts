@@ -49,13 +49,6 @@ extraInitContainers: []
 extraContainers: []
 extraVolumes: []
 
-bootstrap:
-  image:
-  name: ghcr.io/xigxog/kubefox/bootstrap
-  # Defaults to Chart's appVersion
-  #tag: main
-  pullPolicy: IfNotPresent
-
 vault:
   # To use your own instance of Vault set 'enabled' to 'false' and specify its
   # URL including protocol and port using 'externalURL'.
