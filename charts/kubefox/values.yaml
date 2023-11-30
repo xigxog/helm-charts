@@ -81,7 +81,7 @@ vault:
     ########################################
     image:
       repository: ghcr.io/xigxog/vault
-      tag: "1.14.5"
+      tag: "1.14.6"
     standalone:
       enabled: true
     ha:
