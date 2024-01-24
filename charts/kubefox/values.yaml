@@ -5,7 +5,7 @@ log:
   # -- Configure the logging verbosity for the KubeFox operator.
   # Supported log levels include:debug, info, warn, error
   level: info
-  # Configure the logging format for the KubeFox operator.
+  # -- Configure the logging format for the KubeFox operator.
   # Supported log formats include: console, json
   format: json
 
@@ -65,10 +65,10 @@ vault:
       limits:
         memory: 128Mi
         cpu: 500m
-    # Configure the logging verbosity for the Vault server.
+    # -- Configure the logging verbosity for the Vault server.
     # Supported log levels include: trace, debug, info, warn, error
     logLevel: info
-    # Configure the logging format for the Vault server.
+    # -- Configure the logging format for the Vault server.
     # Supported log formats include: standard, json
     logFormat: json
 
