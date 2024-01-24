@@ -13,6 +13,13 @@ rules:
       - patch
       - update
       - watch
+  
+  - apiGroups:
+      - kubefox.xigxog.io
+    resources:
+      - releasemanifests
+    verbs:
+      - delete
 
   - apiGroups:
       - ""
