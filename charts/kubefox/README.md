@@ -1,6 +1,6 @@
 # kubefox
 
-![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.5.1](https://img.shields.io/badge/AppVersion-v0.5.1-informational?style=flat-square)
+![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.5.1](https://img.shields.io/badge/AppVersion-v0.5.1-informational?style=flat-square)
 
 A Helm chart for the KubeFox Operator.
 
@@ -21,6 +21,7 @@ A Helm chart for the KubeFox Operator.
 | Repository | Name | Version |
 |------------|------|---------|
 | https://helm.releases.hashicorp.com | vault | 0.27.0 |
+| https://jaegertracing.github.io/helm-charts | jaeger | 1.0.2 |
 
 ## Values
 
@@ -37,6 +38,13 @@ A Helm chart for the KubeFox Operator.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.tag | string | `""` | Defaults to Chart's appVersion |
 | imagePullSecrets | list | `[]` |  |
+| jaeger.agent.enabled | bool | `false` |  |
+| jaeger.allInOne.enabled | bool | `true` |  |
+| jaeger.collector.enabled | bool | `false` |  |
+| jaeger.enabled | bool | `false` |  |
+| jaeger.provisionDataStore.cassandra | bool | `false` |  |
+| jaeger.query.enabled | bool | `false` |  |
+| jaeger.storage.type | string | `"none"` |  |
 | livenessProbe.httpGet.path | string | `"/healthz"` |  |
 | livenessProbe.httpGet.port | string | `"health"` |  |
 | livenessProbe.initialDelaySeconds | int | `5` |  |
