@@ -2,6 +2,33 @@ apiVersion: v1
 entries:
   kubefox:
   - apiVersion: v2
+    appVersion: v0.6.1
+    created: "2024-03-13T11:46:13.500292082Z"
+    dependencies:
+    - condition: vault.enabled
+      name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.27.0
+    - condition: jaeger.enabled
+      name: jaeger
+      repository: https://jaegertracing.github.io/helm-charts
+      version: 1.0.2
+    description: A Helm chart for the KubeFox Operator.
+    digest: 9c20c009d199aff75eee0a77c8c4f3073b1e22583c849f93c240dfd6492c5c27
+    maintainers:
+    - email: support@xigxog.io
+      name: John Long (xadhatter)
+    - email: support@xigxog.io
+      name: Bill Schmidt (BoLB23)
+    name: kubefox
+    sources:
+    - https://github.com/xigxog/kubefox
+    - https://github.com/xigxog/helm-charts
+    type: application
+    urls:
+    - https://github.com/xigxog/helm-charts/releases/download/kubefox-1.4.0/kubefox-1.4.0.tgz
+    version: 1.4.0
+  - apiVersion: v2
     appVersion: v0.5.1
     created: "2024-02-16T19:29:45.486752747Z"
     dependencies:
@@ -259,4 +286,4 @@ entries:
     urls:
     - https://github.com/xigxog/helm-charts/releases/download/kubefox-0.1.0/kubefox-0.1.0.tgz
     version: 0.1.0
-generated: "2024-02-16T19:29:45.486872821Z"
+generated: "2024-03-13T11:46:13.500410695Z"
