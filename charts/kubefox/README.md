@@ -1,6 +1,6 @@
 # kubefox
 
-![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.6.1](https://img.shields.io/badge/AppVersion-v0.6.1-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.0](https://img.shields.io/badge/AppVersion-v0.7.0-informational?style=flat-square)
 
 A Helm chart for the KubeFox Operator.
 
@@ -20,8 +20,8 @@ A Helm chart for the KubeFox Operator.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://helm.releases.hashicorp.com | vault | 0.27.0 |
-| https://jaegertracing.github.io/helm-charts | jaeger | 1.0.2 |
+| https://helm.releases.hashicorp.com | vault | 0.28.0 |
+| https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry(opentelemetry-collector) | 0.91.0 |
 
 ## Values
 
@@ -36,23 +36,39 @@ A Helm chart for the KubeFox Operator.
 | fullnameOverride | string | `""` |  |
 | image.name | string | `"ghcr.io/xigxog/kubefox/operator"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.tag | string | `""` | Defaults to Chart's appVersion |
+| image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
-| jaeger.agent.enabled | bool | `false` |  |
-| jaeger.allInOne.enabled | bool | `true` |  |
-| jaeger.collector.enabled | bool | `false` |  |
-| jaeger.enabled | bool | `false` |  |
-| jaeger.provisionDataStore.cassandra | bool | `false` |  |
-| jaeger.query.enabled | bool | `false` |  |
-| jaeger.storage.type | string | `"none"` |  |
 | livenessProbe.httpGet.path | string | `"/healthz"` |  |
 | livenessProbe.httpGet.port | string | `"health"` |  |
 | livenessProbe.initialDelaySeconds | int | `5` |  |
 | livenessProbe.periodSeconds | int | `15` |  |
-| log.format | string | `"json"` | Configure the logging format for the KubeFox operator. Supported log formats include: console, json |
-| log.level | string | `"info"` | Configure the logging verbosity for the KubeFox operator. Supported log levels include:debug, info, warn, error |
+| log.format | string | `"json"` | Configure the logging format for the KubeFox operator. Supported log formats: console, json |
+| log.level | string | `"info"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
+| opentelemetry.config.receivers.k8s_cluster.collection_interval | string | `"60s"` |  |
+| opentelemetry.config.service.pipelines.logs.exporters[0] | string | `"debug"` |  |
+| opentelemetry.config.service.pipelines.logs.processors[0] | string | `"memory_limiter"` |  |
+| opentelemetry.config.service.pipelines.logs.processors[1] | string | `"batch"` |  |
+| opentelemetry.config.service.pipelines.logs.receivers[0] | string | `"otlp"` |  |
+| opentelemetry.config.service.pipelines.metrics.exporters[0] | string | `"debug"` |  |
+| opentelemetry.config.service.pipelines.metrics.processors[0] | string | `"memory_limiter"` |  |
+| opentelemetry.config.service.pipelines.metrics.processors[1] | string | `"batch"` |  |
+| opentelemetry.config.service.pipelines.metrics.receivers[0] | string | `"otlp"` |  |
+| opentelemetry.config.service.pipelines.metrics.receivers[1] | string | `"k8s_cluster"` |  |
+| opentelemetry.config.service.pipelines.traces.exporters[0] | string | `"debug"` |  |
+| opentelemetry.config.service.pipelines.traces.processors[0] | string | `"memory_limiter"` |  |
+| opentelemetry.config.service.pipelines.traces.processors[1] | string | `"batch"` |  |
+| opentelemetry.config.service.pipelines.traces.receivers[0] | string | `"otlp"` |  |
+| opentelemetry.config.service.telemetry.logs.level | string | `"DEBUG"` |  |
+| opentelemetry.config.service.telemetry.metrics.level | string | `"none"` |  |
+| opentelemetry.enabled | bool | `false` |  |
+| opentelemetry.extraVolumeMounts | list | `[]` |  |
+| opentelemetry.extraVolumes | list | `[]` |  |
+| opentelemetry.initContainers | list | `[]` |  |
+| opentelemetry.mode | string | `"deployment"` |  |
+| opentelemetry.presets.clusterMetrics.enabled | bool | `true` |  |
+| opentelemetry.replicaCount | int | `1` |  |
 | priorityClassName | string | `""` |  |
 | readinessProbe.httpGet.path | string | `"/readyz"` |  |
 | readinessProbe.httpGet.port | string | `"health"` |  |
@@ -63,7 +79,7 @@ A Helm chart for the KubeFox Operator.
 | resources.requests.cpu | string | `"0"` |  |
 | resources.requests.memory | string | `"64Mi"` |  |
 | tolerations | list | `[]` |  |
-| vault.enabled | bool | `true` | To use your own instance of Vault set 'enabled' to 'false' and specify its URL including protocol and port using 'externalURL'. |
+| vault.enabled | bool | `true` |  |
 | vault.externalURL | string | `""` |  |
 | vault.global.tlsDisable | bool | `false` |  |
 | vault.injector.enabled | bool | `false` |  |
@@ -76,9 +92,9 @@ A Helm chart for the KubeFox Operator.
 | vault.server.extraSecretEnvironmentVars[1].secretName | string | `"kubefox-vault-env"` |  |
 | vault.server.ha.enabled | bool | `false` |  |
 | vault.server.image.repository | string | `"ghcr.io/xigxog/vault"` |  |
-| vault.server.image.tag | string | `"1.14.8-0"` |  |
-| vault.server.logFormat | string | `"json"` | Configure the logging format for the Vault server. Supported log formats include: standard, json |
-| vault.server.logLevel | string | `"info"` | Configure the logging verbosity for the Vault server. Supported log levels include: trace, debug, info, warn, error |
+| vault.server.image.tag | string | `"1.14.10-0"` |  |
+| vault.server.logFormat | string | `"json"` |  |
+| vault.server.logLevel | string | `"info"` |  |
 | vault.server.resources.limits.cpu | string | `"500m"` |  |
 | vault.server.resources.limits.memory | string | `"128Mi"` |  |
 | vault.server.resources.requests.cpu | string | `"100m"` |  |

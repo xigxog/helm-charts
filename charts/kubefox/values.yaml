@@ -2,16 +2,16 @@ nameOverride: ""
 fullnameOverride: ""
 
 log:
-  # -- Configure the logging verbosity for the KubeFox operator.
-  # Supported log levels include:debug, info, warn, error
+  # Configure the logging verbosity for the KubeFox operator.
+  # Supported log levels: debug, info, warn, error
   level: info
   # -- Configure the logging format for the KubeFox operator.
-  # Supported log formats include: console, json
+  # Supported log formats: console, json
   format: json
 
 image:
   name: ghcr.io/xigxog/kubefox/operator
-  # -- Defaults to Chart's appVersion
+  # Defaults to Chart's appVersion
   tag: ""
   pullPolicy: IfNotPresent
 
@@ -49,23 +49,71 @@ extraInitContainers: []
 extraContainers: []
 extraVolumes: []
 
-jaeger:
+# TODO move to platform level and have operator manage
+opentelemetry:
   enabled: false
-  provisionDataStore:
-    cassandra: false
-  allInOne:
-    enabled: true
-  storage:
-    type: none
-  agent:
-    enabled: false
-  collector:
-    enabled: false
-  query:
-    enabled: false
+  mode: deployment
+  replicaCount: 1
+
+  config:
+    receivers:
+      k8s_cluster:
+        collection_interval: 60s
+
+    # Add configuration for additional exporters here, then add them to the
+    # pipelines below.
+    # exporters:
+    #   otlp/jaeger:
+    #     endpoint: jaeger-collector.default:4317
+    #     tls:
+    #       insecure: true
+
+    service:
+      telemetry:
+        logs:
+          level: DEBUG
+        metrics:
+          level: none
+      pipelines:
+        logs:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - debug
+
+        metrics:
+          receivers:
+            - otlp
+            - k8s_cluster
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - debug
+
+        traces:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - debug
+
+  presets:
+    clusterMetrics:
+      enabled: true
+
+  # TODO add bootstrap to get cert
+  extraVolumes: []
+  extraVolumeMounts: []
+  initContainers: []
 
 vault:
-  # -- To use your own instance of Vault set 'enabled' to 'false' and specify its
+  # To use your own instance of Vault set 'enabled' to 'false' and specify its
   # URL including protocol and port using 'externalURL'.
   enabled: true
   externalURL: "" # For example, https://my-vault:8200
@@ -80,10 +128,10 @@ vault:
       limits:
         memory: 128Mi
         cpu: 500m
-    # -- Configure the logging verbosity for the Vault server.
+    # Configure the logging verbosity for the Vault server.
     # Supported log levels include: trace, debug, info, warn, error
     logLevel: info
-    # -- Configure the logging format for the Vault server.
+    # Configure the logging format for the Vault server.
     # Supported log formats include: standard, json
     logFormat: json
 
@@ -96,7 +144,7 @@ vault:
     ########################################
     image:
       repository: ghcr.io/xigxog/vault
-      tag: "1.14.8-0"
+      tag: "1.14.10-0"
     standalone:
       enabled: true
     ha:

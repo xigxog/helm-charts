@@ -1,8 +1,8 @@
 apiVersion: v2
 type: application
 name: kubefox
-version: 1.4.0
-appVersion: v0.6.1
+version: 1.5.0
+appVersion: v0.7.0
 description: A Helm chart for the KubeFox Operator.
 maintainers:
   - name: John Long (xadhatter)
@@ -15,10 +15,11 @@ sources:
 
 dependencies:
   - name: vault
-    version: 0.27.0
+    version: 0.28.0
     repository: https://helm.releases.hashicorp.com
     condition: vault.enabled
-  - name: jaeger
-    version: 1.0.2
-    repository: https://jaegertracing.github.io/helm-charts
-    condition: jaeger.enabled
+  - name: opentelemetry-collector
+    alias: opentelemetry
+    version: 0.91.0
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    condition: opentelemetry.enabled
