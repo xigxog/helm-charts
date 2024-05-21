@@ -1,6 +1,6 @@
 # kubefox
 
-![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.0](https://img.shields.io/badge/AppVersion-v0.7.0-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.7.1](https://img.shields.io/badge/AppVersion-v0.7.1-informational?style=flat-square)
 
 A Helm chart for the KubeFox Operator.
 
@@ -21,6 +21,7 @@ A Helm chart for the KubeFox Operator.
 | Repository | Name | Version |
 |------------|------|---------|
 | https://helm.releases.hashicorp.com | vault | 0.28.0 |
+| https://jaegertracing.github.io/helm-charts | jaeger | 3.0.7 |
 | https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry(opentelemetry-collector) | 0.91.0 |
 
 ## Values
@@ -38,6 +39,13 @@ A Helm chart for the KubeFox Operator.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
+| jaeger.agent.enabled | bool | `false` |  |
+| jaeger.allInOne.enabled | bool | `true` |  |
+| jaeger.collector.enabled | bool | `false` |  |
+| jaeger.fullnameOverride | string | `"jaeger"` |  |
+| jaeger.provisionDataStore.cassandra | bool | `false` |  |
+| jaeger.query.enabled | bool | `false` |  |
+| jaeger.storage.type | string | `"memory"` |  |
 | livenessProbe.httpGet.path | string | `"/healthz"` |  |
 | livenessProbe.httpGet.port | string | `"health"` |  |
 | livenessProbe.initialDelaySeconds | int | `5` |  |
@@ -46,6 +54,8 @@ A Helm chart for the KubeFox Operator.
 | log.level | string | `"info"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
+| opentelemetry.config.exporters.otlp/jaeger.endpoint | string | `"jaeger-collector:4317"` |  |
+| opentelemetry.config.exporters.otlp/jaeger.tls.insecure | bool | `true` |  |
 | opentelemetry.config.receivers.k8s_cluster.collection_interval | string | `"60s"` |  |
 | opentelemetry.config.service.pipelines.logs.exporters[0] | string | `"debug"` |  |
 | opentelemetry.config.service.pipelines.logs.processors[0] | string | `"memory_limiter"` |  |
@@ -56,15 +66,15 @@ A Helm chart for the KubeFox Operator.
 | opentelemetry.config.service.pipelines.metrics.processors[1] | string | `"batch"` |  |
 | opentelemetry.config.service.pipelines.metrics.receivers[0] | string | `"otlp"` |  |
 | opentelemetry.config.service.pipelines.metrics.receivers[1] | string | `"k8s_cluster"` |  |
-| opentelemetry.config.service.pipelines.traces.exporters[0] | string | `"debug"` |  |
+| opentelemetry.config.service.pipelines.traces.exporters[0] | string | `"otlp/jaeger"` |  |
 | opentelemetry.config.service.pipelines.traces.processors[0] | string | `"memory_limiter"` |  |
 | opentelemetry.config.service.pipelines.traces.processors[1] | string | `"batch"` |  |
 | opentelemetry.config.service.pipelines.traces.receivers[0] | string | `"otlp"` |  |
-| opentelemetry.config.service.telemetry.logs.level | string | `"DEBUG"` |  |
+| opentelemetry.config.service.telemetry.logs.level | string | `"INFO"` |  |
 | opentelemetry.config.service.telemetry.metrics.level | string | `"none"` |  |
-| opentelemetry.enabled | bool | `false` |  |
 | opentelemetry.extraVolumeMounts | list | `[]` |  |
 | opentelemetry.extraVolumes | list | `[]` |  |
+| opentelemetry.image.repository | string | `"otel/opentelemetry-collector-k8s"` |  |
 | opentelemetry.initContainers | list | `[]` |  |
 | opentelemetry.mode | string | `"deployment"` |  |
 | opentelemetry.presets.clusterMetrics.enabled | bool | `true` |  |
@@ -78,6 +88,7 @@ A Helm chart for the KubeFox Operator.
 | resources.limits.memory | string | `"128Mi"` |  |
 | resources.requests.cpu | string | `"0"` |  |
 | resources.requests.memory | string | `"64Mi"` |  |
+| telemetry.enabled | bool | `false` |  |
 | tolerations | list | `[]` |  |
 | vault.enabled | bool | `true` |  |
 | vault.externalURL | string | `""` |  |

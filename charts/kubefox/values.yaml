@@ -1,6 +1,9 @@
 nameOverride: ""
 fullnameOverride: ""
 
+telemetry:
+  enabled: false
+
 log:
   # Configure the logging verbosity for the KubeFox operator.
   # Supported log levels: debug, info, warn, error
@@ -51,27 +54,26 @@ extraVolumes: []
 
 # TODO move to platform level and have operator manage
 opentelemetry:
-  enabled: false
   mode: deployment
   replicaCount: 1
+  image:
+    repository: "otel/opentelemetry-collector-k8s"
 
   config:
     receivers:
       k8s_cluster:
         collection_interval: 60s
 
-    # Add configuration for additional exporters here, then add them to the
-    # pipelines below.
-    # exporters:
-    #   otlp/jaeger:
-    #     endpoint: jaeger-collector.default:4317
-    #     tls:
-    #       insecure: true
+    exporters:
+      otlp/jaeger:
+        endpoint: jaeger-collector:4317
+        tls:
+          insecure: true
 
     service:
       telemetry:
         logs:
-          level: DEBUG
+          level: INFO
         metrics:
           level: none
       pipelines:
@@ -101,7 +103,7 @@ opentelemetry:
             - memory_limiter
             - batch
           exporters:
-            - debug
+            - otlp/jaeger
 
   presets:
     clusterMetrics:
@@ -111,6 +113,21 @@ opentelemetry:
   extraVolumes: []
   extraVolumeMounts: []
   initContainers: []
+
+jaeger:
+  fullnameOverride: jaeger
+  provisionDataStore:
+    cassandra: false
+  allInOne:
+    enabled: true
+  storage:
+    type: memory
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false
 
 vault:
   # To use your own instance of Vault set 'enabled' to 'false' and specify its
