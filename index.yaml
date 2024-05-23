@@ -2,6 +2,38 @@ apiVersion: v1
 entries:
   kubefox:
   - apiVersion: v2
+    appVersion: v0.7.2
+    created: "2024-05-23T14:41:42.008159835Z"
+    dependencies:
+    - condition: vault.enabled
+      name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.28.0
+    - alias: opentelemetry
+      condition: telemetry.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.91.0
+    - condition: telemetry.enabled
+      name: jaeger
+      repository: https://jaegertracing.github.io/helm-charts
+      version: 3.0.7
+    description: A Helm chart for the KubeFox Operator.
+    digest: 9e2d09f4803f59a89a3e6ed6e846749f42729f95ce4a77a17cfb123eb55d22e3
+    maintainers:
+    - email: support@xigxog.io
+      name: John Long (xadhatter)
+    - email: support@xigxog.io
+      name: Bill Schmidt (BoLB23)
+    name: kubefox
+    sources:
+    - https://github.com/xigxog/kubefox
+    - https://github.com/xigxog/helm-charts
+    type: application
+    urls:
+    - https://github.com/xigxog/helm-charts/releases/download/kubefox-1.5.1/kubefox-1.5.1.tgz
+    version: 1.5.1
+  - apiVersion: v2
     appVersion: v0.7.1
     created: "2024-05-21T16:54:21.777996527Z"
     dependencies:
@@ -318,4 +350,4 @@ entries:
     urls:
     - https://github.com/xigxog/helm-charts/releases/download/kubefox-0.1.0/kubefox-0.1.0.tgz
     version: 0.1.0
-generated: "2024-05-21T16:54:21.778107864Z"
+generated: "2024-05-23T14:41:42.008270391Z"
